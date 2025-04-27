@@ -1,3 +1,4 @@
+
 import { Emotion, AlertSignal } from "@/components/EmotionResult";
 
 // En una aplicación real, esto se conectaría a una API de procesamiento de lenguaje natural
@@ -84,6 +85,23 @@ export async function analyzeText(text: string, healthCondition?: string | null)
         "te dije que esto pasaría", "te lo advertí"
       ],
       severity: "low" as const
+    },
+    // Añadimos las propiedades faltantes
+    ansiedad: {
+      patterns: [
+        "ansiedad constante", "preocupación excesiva", "ataque de pánico", "nervios", 
+        "sensación de ahogo", "hiperventilación", "tensión", "inquietud", 
+        "dificultad para concentrarse", "irritabilidad"
+      ],
+      severity: "medium" as const
+    },
+    tristeza: {
+      patterns: [
+        "me siento triste", "sin esperanza", "vacío", "sin energía", "desinterés", 
+        "no disfruto nada", "insomnio", "dormir demasiado", "fatiga", "culpa", 
+        "pensamientos negativos", "no valgo nada"
+      ],
+      severity: "medium" as const
     }
   };
   
@@ -197,6 +215,12 @@ export async function analyzeText(text: string, healthCondition?: string | null)
           break;
         case "culpabilización":
           description = "Se detectó lenguaje que atribuye culpa de forma injusta.";
+          break;
+        case "ansiedad":
+          description = "Se detectaron patrones relacionados con ansiedad.";
+          break;
+        case "tristeza":
+          description = "Se detectaron patrones relacionados con tristeza o depresión.";
           break;
       }
       
