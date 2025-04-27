@@ -1,11 +1,10 @@
-
 import { Emotion, AlertSignal } from "@/components/EmotionResult";
 
 // En una aplicación real, esto se conectaría a una API de procesamiento de lenguaje natural
 // Como OpenAI, Google NLP, IBM Watson, etc.
 // Por ahora implementamos una versión simulada para demostración
 
-export async function analyzeText(text: string): Promise<{
+export async function analyzeText(text: string, healthCondition?: string | null): Promise<{
   emotions: Emotion[];
   alertSignals: AlertSignal[];
 }> {
@@ -87,6 +86,21 @@ export async function analyzeText(text: string): Promise<{
       severity: "low" as const
     }
   };
+  
+  // Añadir patrones específicos basados en la condición de salud
+  if (healthCondition) {
+    const condition = healthCondition.toLowerCase();
+    if (condition.includes('ansiedad')) {
+      alertPatterns.ansiedad.patterns.push(
+        ...['ataque de pánico', 'me cuesta respirar', 'me siento ahogado', 'palpitaciones']
+      );
+    }
+    if (condition.includes('depresión')) {
+      alertPatterns.tristeza.patterns.push(
+        ...['no quiero vivir', 'todo es mi culpa', 'no valgo nada', 'no tiene sentido']
+      );
+    }
+  }
   
   // Calcular puntuaciones de emociones
   const emotions: Emotion[] = [];

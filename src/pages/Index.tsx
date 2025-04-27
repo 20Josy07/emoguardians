@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { EmotionInput } from "@/components/EmotionInput";
 import { EmotionResult, Emotion, AlertSignal } from "@/components/EmotionResult";
+import { HealthConditionForm } from "@/components/HealthConditionForm";
 import { analyzeText } from "@/services/emotionAnalysis";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -11,13 +12,15 @@ const Index = () => {
   const [analyzed, setAnalyzed] = useState(false);
   const [emotions, setEmotions] = useState<Emotion[]>([]);
   const [alertSignals, setAlertSignals] = useState<AlertSignal[]>([]);
+  const [healthCondition, setHealthCondition] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleAnalyze = async (text: string) => {
     try {
       setAnalyzing(true);
       
-      const results = await analyzeText(text);
+      // Incluir la condición de salud en el análisis si está disponible
+      const results = await analyzeText(text, healthCondition);
       
       setEmotions(results.emotions);
       setAlertSignals(results.alertSignals);
@@ -56,7 +59,9 @@ const Index = () => {
       
       <main className="flex-1 container max-w-4xl mx-auto px-4 py-8 flex flex-col items-center">
         <div className="w-full max-w-3xl">
-          {!analyzed ? (
+          {healthCondition === null ? (
+            <HealthConditionForm onSubmit={setHealthCondition} />
+          ) : !analyzed ? (
             <EmotionInput onAnalyze={handleAnalyze} isAnalyzing={analyzing} />
           ) : (
             <EmotionResult 
@@ -67,7 +72,7 @@ const Index = () => {
           )}
           
           {/* Instrucciones iniciales */}
-          {!analyzed && !analyzing && (
+          {!analyzed && !analyzing && healthCondition !== null && (
             <div className="mt-8 p-5 bg-blue-50 border border-blue-200 rounded-lg">
               <h2 className="text-xl font-medium mb-2 text-blue-800">¿Cómo funciona EmoGuardian?</h2>
               <ol className="list-decimal pl-5 space-y-2 text-blue-700">
