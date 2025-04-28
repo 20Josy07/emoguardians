@@ -13,7 +13,7 @@ const Index = () => {
   const [analyzed, setAnalyzed] = useState(false);
   const [emotions, setEmotions] = useState<Emotion[]>([]);
   const [alertSignals, setAlertSignals] = useState<AlertSignal[]>([]);
-  const [healthCondition, setHealthCondition] = useState<string | null>(null);
+  const [healthCondition, setHealthCondition] = useState<string | null>(undefined);
   const { toast } = useToast();
 
   const handleAnalyze = async (text: string) => {
@@ -70,7 +70,7 @@ const Index = () => {
       
       <main className="flex-1 container max-w-4xl mx-auto px-4 py-8 flex flex-col items-center">
         <div className="w-full max-w-3xl space-y-6">
-          {healthCondition === null ? (
+          {healthCondition === undefined ? (
             <HealthConditionForm onSubmit={setHealthCondition} />
           ) : !analyzed ? (
             <>
@@ -91,7 +91,7 @@ const Index = () => {
             </>
           )}
           
-          {!analyzed && !analyzing && healthCondition !== null && (
+          {!analyzed && !analyzing && healthCondition !== undefined && (
             <div className="mt-8 p-5 bg-blue-50 border border-blue-200 rounded-lg">
               <h2 className="text-xl font-medium mb-2 text-blue-800">¿Cómo funciona EmoGuardian?</h2>
               <ol className="list-decimal pl-5 space-y-2 text-blue-700">
