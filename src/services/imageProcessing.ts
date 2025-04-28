@@ -3,7 +3,13 @@ import { createWorker } from 'tesseract.js';
 
 export async function extractTextFromImage(imageFile: Blob): Promise<string> {
   try {
-    const worker = await createWorker('spa');
+    const worker = await createWorker({
+      langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+      logger: m => console.log(m)
+    });
+    
+    await worker.loadLanguage('spa');
+    await worker.initialize('spa');
     
     const result = await worker.recognize(imageFile);
     await worker.terminate();
