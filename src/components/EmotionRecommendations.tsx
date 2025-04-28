@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { AlertSignal } from "./EmotionResult";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { getRecommendations } from "@/services/recommendationService";
 import { getAIRecommendation, AIRecommendation } from "@/services/aiRecommendations";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
 interface EmotionRecommendationsProps {
@@ -16,7 +14,6 @@ interface EmotionRecommendationsProps {
 }
 
 export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecommendationsProps) {
-  const [apiKey, setApiKey] = useState<string>("");
   const [aiRecommendation, setAiRecommendation] = useState<AIRecommendation | null>(null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const { toast } = useToast();
@@ -25,15 +22,6 @@ export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecomm
   const recommendations = getRecommendations(alertSignals);
 
   const handleGetAIRecommendation = async () => {
-    if (!apiKey.trim()) {
-      toast({
-        title: "API Key requerida",
-        description: "Por favor, ingresa tu API Key de Perplexity para obtener recomendaciones personalizadas.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     try {
       setIsLoadingAI(true);
       const topEmotions = emotions
@@ -43,7 +31,7 @@ export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecomm
       
       const alertTypes = alertSignals.map(signal => signal.type);
       
-      const aiRec = await getAIRecommendation(apiKey, topEmotions, alertTypes);
+      const aiRec = await getAIRecommendation(topEmotions, alertTypes);
       setAiRecommendation(aiRec);
       
       toast({
@@ -53,7 +41,7 @@ export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecomm
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo generar la recomendación. Verifica tu API Key.",
+        description: "No se pudo generar la recomendación. Por favor, intenta nuevamente.",
         variant: "destructive"
       });
     } finally {
@@ -96,21 +84,13 @@ export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecomm
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              type="password"
-              placeholder="Ingresa tu API Key de Perplexity"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              className="flex-1"
-            />
-            <Button 
-              onClick={handleGetAIRecommendation}
-              disabled={isLoadingAI}
-            >
-              {isLoadingAI ? "Generando..." : "Obtener recomendación"}
-            </Button>
-          </div>
+          <Button 
+            onClick={handleGetAIRecommendation}
+            disabled={isLoadingAI}
+            className="w-full"
+          >
+            {isLoadingAI ? "Generando..." : "Obtener recomendación personalizada"}
+          </Button>
           
           {aiRecommendation && (
             <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
@@ -120,7 +100,6 @@ export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecomm
           )}
           
           <p className="text-xs text-muted-foreground">
-            Para obtener recomendaciones personalizadas, necesitas una API Key de Perplexity. 
             Las recomendaciones se generan teniendo en cuenta tus emociones detectadas y posibles señales de alerta.
           </p>
         </CardContent>
