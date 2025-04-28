@@ -87,7 +87,10 @@ const Index = () => {
                 alertSignals={alertSignals}
                 onReset={resetAnalysis}
               />
-              <EmotionRecommendations alertSignals={alertSignals} />
+              <EmotionRecommendations 
+                alertSignals={alertSignals}
+                emotions={emotions}
+              />
             </>
           )}
           
