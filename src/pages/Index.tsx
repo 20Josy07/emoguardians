@@ -6,6 +6,7 @@ import { HealthConditionForm } from "@/components/HealthConditionForm";
 import { ImageTextInput } from "@/components/ImageTextInput";
 import { analyzeText } from "@/services/emotionAnalysis";
 import { useToast } from "@/components/ui/use-toast";
+import { EmotionRecommendations } from "@/components/EmotionRecommendations";
 
 const Index = () => {
   const [analyzing, setAnalyzing] = useState(false);
@@ -80,11 +81,14 @@ const Index = () => {
               />
             </>
           ) : (
-            <EmotionResult 
-              emotions={emotions}
-              alertSignals={alertSignals}
-              onReset={resetAnalysis}
-            />
+            <>
+              <EmotionResult 
+                emotions={emotions}
+                alertSignals={alertSignals}
+                onReset={resetAnalysis}
+              />
+              <EmotionRecommendations alertSignals={alertSignals} />
+            </>
           )}
           
           {!analyzed && !analyzing && healthCondition !== null && (
