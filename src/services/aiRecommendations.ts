@@ -1,13 +1,13 @@
 
-// Esta función utiliza la API de ShadAI para generar recomendaciones basadas en emociones
-// detectadas y señales de alerta
+// Esta función simula recomendaciones basadas en emociones detectadas y señales de alerta
+// ya que la API KEY de Gemini no está funcionando correctamente
 
 export interface AIRecommendation {
   recommendation: string;
   context: string;
 }
 
-// Recomendaciones predefinidas como respaldo en caso de que la API falle
+// Recomendaciones predefinidas basadas en combinaciones comunes de emociones
 const emotionRecommendations = {
   felicidad: "Disfruta de este momento positivo y considera compartir tu alegría con personas cercanas para fortalecer tus vínculos emocionales.",
   tristeza: "Es normal sentir tristeza a veces; date espacio para procesar tus emociones y considera hablar con alguien de confianza sobre lo que sientes.",
@@ -19,7 +19,7 @@ const emotionRecommendations = {
   ansiedad: "Practica técnicas de respiración y mindfulness para centrarte en el presente, y considera hablar con un profesional si la ansiedad persiste."
 };
 
-// Recomendaciones adicionales basadas en señales de alerta como respaldo
+// Recomendaciones adicionales basadas en señales de alerta
 const alertRecommendations = {
   manipulación: "Mantente atento a patrones de manipulación emocional y recuerda que tienes derecho a establecer límites claros en tus relaciones.",
   amenazas: "Las amenazas nunca son parte de una relación saludable; considera buscar apoyo profesional si te sientes en riesgo.",
@@ -39,95 +39,39 @@ export async function getAIRecommendation(
   try {
     // Simulamos un tiempo de procesamiento para hacer la experiencia más realista
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Preparando el prompt para ShadAI
-    let promptText = "Genera una recomendación psicológica breve y útil para una persona que está experimentando ";
-    
-    // Agregamos emociones al prompt
+
+    // Elegir una recomendación basada en la emoción principal
+    let recommendation = "";
     if (emotions.length > 0) {
-      promptText += `las siguientes emociones: ${emotions.join(", ")}`;
-      
-      // Agregamos alertas si existen
-      if (alertTypes.length > 0) {
-        promptText += ` y muestra posibles señales de: ${alertTypes.join(", ")}`;
-      }
-    } else if (alertTypes.length > 0) {
-      promptText += `posibles señales de: ${alertTypes.join(", ")}`;
-    } else {
-      promptText += "diversas emociones";
+      const mainEmotion = emotions[0].toLowerCase();
+      // Buscar en nuestro diccionario de recomendaciones o usar una genérica
+      recommendation = emotionRecommendations[mainEmotion as keyof typeof emotionRecommendations] || 
+                      "Observa tus emociones sin juzgarlas y date permiso para sentir, recordando que todas las emociones son válidas y temporales.";
     }
-    
-    promptText += ". La recomendación debe ser empática, práctica y escrita en español.";
 
-    // Llamada a la API de ShadAI con el API key proporcionado
-    try {
-      const response = await fetch("https://api.shadai.ai/api/v1/predict", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer e343bf65-5cd4-4f38-8da2-7681805ad9cd"
-        },
-        body: JSON.stringify({
-          prompt: promptText,
-          max_tokens: 200
-        })
-      });
-
-      // Si la respuesta es exitosa, procesamos los datos
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Verificamos que la respuesta tenga el formato esperado
-        if (data && data.text) {
-          // Formatear la respuesta para que se ajuste a nuestro formato
-          const formattedEmotions = emotions.map(e => e.charAt(0).toUpperCase() + e.slice(1).toLowerCase()).join(", ");
-          const formattedAlerts = alertTypes.length > 0 
-            ? alertTypes.map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(", ") 
-            : "";
-          
-          return {
-            recommendation: data.text.trim(),
-            context: `Basado en emociones: ${formattedEmotions}${alertTypes.length > 0 ? ` y alertas: ${formattedAlerts}` : ''}`
-          };
-        }
-      }
+    // Si hay alertas, añadir una recomendación específica
+    if (alertTypes.length > 0) {
+      const mainAlert = alertTypes[0].toLowerCase();
+      const alertRecommendation = alertRecommendations[mainAlert as keyof typeof alertRecommendations];
       
-      // Si algo falla con la API, usamos las recomendaciones predefinidas
-      throw new Error("No se pudo obtener una respuesta de la API");
-    } catch (apiError) {
-      console.error("Error con la API de ShadAI:", apiError);
-      
-      // Usamos las recomendaciones predefinidas como respaldo
-      let recommendation = "";
-      if (emotions.length > 0) {
-        const mainEmotion = emotions[0].toLowerCase();
-        recommendation = emotionRecommendations[mainEmotion as keyof typeof emotionRecommendations] || 
-                        "Observa tus emociones sin juzgarlas y date permiso para sentir, recordando que todas las emociones son válidas y temporales.";
+      if (alertRecommendation) {
+        recommendation = recommendation + " " + alertRecommendation;
       }
-
-      // Si hay alertas, añadir una recomendación específica
-      if (alertTypes.length > 0) {
-        const mainAlert = alertTypes[0].toLowerCase();
-        const alertRecommendation = alertRecommendations[mainAlert as keyof typeof alertRecommendations];
-        
-        if (alertRecommendation) {
-          recommendation = recommendation + " " + alertRecommendation;
-        }
-      }
-
-      // Formatear adecuadamente la respuesta
-      const formattedEmotions = emotions.map(e => e.charAt(0).toUpperCase() + e.slice(1).toLowerCase()).join(", ");
-      const formattedAlerts = alertTypes.length > 0 
-        ? alertTypes.map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(", ") 
-        : "";
-
-      return {
-        recommendation: recommendation,
-        context: `Basado en emociones: ${formattedEmotions}${alertTypes.length > 0 ? ` y alertas: ${formattedAlerts}` : ''} (usando recomendaciones predefinidas)`
-      };
     }
+
+    // Formatear adecuadamente la respuesta
+    const formattedEmotions = emotions.map(e => e.charAt(0).toUpperCase() + e.slice(1).toLowerCase()).join(", ");
+    const formattedAlerts = alertTypes.length > 0 
+      ? alertTypes.map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(", ") 
+      : "";
+
+    return {
+      recommendation: recommendation,
+      context: `Basado en emociones: ${formattedEmotions}${alertTypes.length > 0 ? ` y alertas: ${formattedAlerts}` : ''}`
+    };
   } catch (error) {
     console.error('Error al generar recomendación:', error);
     throw new Error('Error al generar recomendación');
   }
 }
+
