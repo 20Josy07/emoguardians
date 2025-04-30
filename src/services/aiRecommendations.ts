@@ -1,64 +1,77 @@
 
-// Esta función obtiene recomendaciones de la API de Google Gemini
-// basadas en las emociones detectadas y señales de alerta
+// Esta función simula recomendaciones basadas en emociones detectadas y señales de alerta
+// ya que la API KEY de Gemini no está funcionando correctamente
 
 export interface AIRecommendation {
   recommendation: string;
   context: string;
 }
 
+// Recomendaciones predefinidas basadas en combinaciones comunes de emociones
+const emotionRecommendations = {
+  felicidad: "Disfruta de este momento positivo y considera compartir tu alegría con personas cercanas para fortalecer tus vínculos emocionales.",
+  tristeza: "Es normal sentir tristeza a veces; date espacio para procesar tus emociones y considera hablar con alguien de confianza sobre lo que sientes.",
+  enojo: "Intenta tomar un momento para respirar profundamente antes de reaccionar, y pregúntate qué necesidad no satisfecha podría estar causando tu enojo.",
+  miedo: "El miedo es una respuesta natural que nos protege; identifica qué lo está causando y evalúa realísticamente la situación para encontrar formas de afrontarla.",
+  sorpresa: "Tómate un momento para procesar esta información inesperada antes de reaccionar, permitiéndote responder de manera más equilibrada.",
+  disgusto: "Es importante reconocer qué te causa rechazo y evaluar si puedes establecer límites saludables frente a esa situación.",
+  amor: "Cultiva estos sentimientos positivos y considera expresarlos de manera constructiva, recordando la importancia del equilibrio en las relaciones.",
+  ansiedad: "Practica técnicas de respiración y mindfulness para centrarte en el presente, y considera hablar con un profesional si la ansiedad persiste."
+};
+
+// Recomendaciones adicionales basadas en señales de alerta
+const alertRecommendations = {
+  manipulación: "Mantente atento a patrones de manipulación emocional y recuerda que tienes derecho a establecer límites claros en tus relaciones.",
+  amenazas: "Las amenazas nunca son parte de una relación saludable; considera buscar apoyo profesional si te sientes en riesgo.",
+  insultos: "El respeto es fundamental en cualquier relación; los insultos son una forma de abuso verbal que no deberías tolerar.",
+  aislamiento: "Mantener conexiones sociales diversas es importante para tu bienestar; cuestiona cualquier intento de alejarte de tus seres queridos.",
+  control: "Las relaciones saludables se basan en la confianza y la libertad, no en el control; reflexiona sobre el equilibrio de poder en tus relaciones.",
+  desvalorización: "Tu valor no depende de las opiniones de otros; rodéate de personas que te valoren y respeten.",
+  culpabilización: "No eres responsable de las emociones o acciones de otros; reconoce cuando intentan hacerte sentir culpable injustamente.",
+  ansiedad: "La ansiedad puede ser abrumadora; considera técnicas de relajación y, si es persistente, busca apoyo profesional.",
+  tristeza: "Es normal sentirse triste a veces; permítete sentir esta emoción y busca actividades y personas que te brinden confort."
+};
+
 export async function getAIRecommendation(
   emotions: string[],
   alertTypes: string[]
 ): Promise<AIRecommendation> {
   try {
-    // Preparar los datos para enviar a la API
-    const emotionsText = emotions.join(", ");
-    const alertsText = alertTypes.join(", ");
+    // Simulamos un tiempo de procesamiento para hacer la experiencia más realista
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Crear el mensaje para la IA
-    const prompt = `Como asistente de salud emocional, analiza las siguientes emociones detectadas: ${emotionsText}. ${
-      alertTypes.length > 0 ? `También se detectaron las siguientes alertas: ${alertsText}.` : ''
-    } Proporciona una recomendación breve y empática en español (máximo 3 oraciones) para ayudar a la persona.`;
-
-    // Llamar a la API de Google Gemini
-    // Esta es una API REST estándar, similar a las que usarías en cualquier proyecto
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyDlC9T3R5JhsoFZKA-Y7arkjY8bQU-XOBM', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt  // El mensaje que enviamos a la IA
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,         // Controla la creatividad de la respuesta
-          maxOutputTokens: 150,     // Limita la longitud de la respuesta
-        }
-      }),
-    });
-
-    // Verificar si la respuesta fue exitosa
-    if (!response.ok) {
-      throw new Error('Error al obtener recomendación');
+    // Elegir una recomendación basada en la emoción principal
+    let recommendation = "";
+    if (emotions.length > 0) {
+      const mainEmotion = emotions[0].toLowerCase();
+      // Buscar en nuestro diccionario de recomendaciones o usar una genérica
+      recommendation = emotionRecommendations[mainEmotion as keyof typeof emotionRecommendations] || 
+                      "Observa tus emociones sin juzgarlas y date permiso para sentir, recordando que todas las emociones son válidas y temporales.";
     }
 
-    // Convertir la respuesta a JSON
-    const data = await response.json();
-    
-    // Extraer la recomendación del resultado
-    const recommendation = data.candidates[0].content.parts[0].text;
-    
-    // Devolver la recomendación y el contexto
+    // Si hay alertas, añadir una recomendación específica
+    if (alertTypes.length > 0) {
+      const mainAlert = alertTypes[0].toLowerCase();
+      const alertRecommendation = alertRecommendations[mainAlert as keyof typeof alertRecommendations];
+      
+      if (alertRecommendation) {
+        recommendation = recommendation + " " + alertRecommendation;
+      }
+    }
+
+    // Formatear adecuadamente la respuesta
+    const formattedEmotions = emotions.map(e => e.charAt(0).toUpperCase() + e.slice(1).toLowerCase()).join(", ");
+    const formattedAlerts = alertTypes.length > 0 
+      ? alertTypes.map(a => a.charAt(0).toUpperCase() + a.slice(1).toLowerCase()).join(", ") 
+      : "";
+
     return {
       recommendation: recommendation,
-      context: `Basado en emociones: ${emotionsText}${alertTypes.length > 0 ? ` y alertas: ${alertsText}` : ''}`
+      context: `Basado en emociones: ${formattedEmotions}${alertTypes.length > 0 ? ` y alertas: ${formattedAlerts}` : ''}`
     };
   } catch (error) {
     console.error('Error al generar recomendación:', error);
-    throw error;
+    throw new Error('Error al generar recomendación');
   }
 }
+
