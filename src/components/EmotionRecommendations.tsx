@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AlertSignal } from "./EmotionResult";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +8,7 @@ import { getRecommendations } from "@/services/recommendationService";
 import { getAIRecommendation, AIRecommendation } from "@/services/aiRecommendations";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface EmotionRecommendationsProps {
   alertSignals: AlertSignal[];
@@ -14,6 +16,7 @@ interface EmotionRecommendationsProps {
 }
 
 export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecommendationsProps) {
+  // Estados para controlar la recomendación y el estado de carga
   const [aiRecommendation, setAiRecommendation] = useState<AIRecommendation | null>(null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const { toast } = useToast();
@@ -21,24 +24,31 @@ export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecomm
   const hasHighSeverity = alertSignals.some(signal => signal.severity === "high");
   const recommendations = getRecommendations(alertSignals);
 
+  // Esta función se llama cuando el usuario hace clic en el botón para obtener una recomendación
   const handleGetAIRecommendation = async () => {
     try {
       setIsLoadingAI(true);
+      
+      // Obtener las 3 emociones principales
       const topEmotions = emotions
         .sort((a, b) => b.score - a.score)
         .slice(0, 3)
         .map(e => e.name);
       
+      // Obtener los tipos de alerta
       const alertTypes = alertSignals.map(signal => signal.type);
       
+      // Llamar a la API para obtener una recomendación personalizada
       const aiRec = await getAIRecommendation(topEmotions, alertTypes);
       setAiRecommendation(aiRec);
       
+      // Mostrar mensaje de éxito
       toast({
         title: "Recomendación generada",
         description: "Se ha generado una nueva recomendación personalizada.",
       });
     } catch (error) {
+      // Mostrar mensaje de error
       toast({
         title: "Error",
         description: "No se pudo generar la recomendación. Por favor, intenta nuevamente.",
@@ -49,10 +59,12 @@ export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecomm
     }
   };
 
+  // No mostrar nada si no hay alertas ni emociones
   if (alertSignals.length === 0 && emotions.length === 0) return null;
 
   return (
     <div className="space-y-4">
+      {/* Tarjeta de recomendaciones básicas */}
       <Card className={cn(
         "w-full shadow-lg",
         hasHighSeverity ? "border-red-200" : "border-yellow-200"
@@ -76,6 +88,7 @@ export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecomm
         </CardContent>
       </Card>
 
+      {/* Tarjeta de recomendación IA */}
       <Card className="w-full shadow-lg border-blue-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -84,6 +97,7 @@ export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecomm
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Botón para obtener recomendación */}
           <Button 
             onClick={handleGetAIRecommendation}
             disabled={isLoadingAI}
@@ -92,7 +106,13 @@ export function EmotionRecommendations({ alertSignals, emotions }: EmotionRecomm
             {isLoadingAI ? "Generando..." : "Obtener recomendación personalizada"}
           </Button>
           
-          {aiRecommendation && (
+          {/* Mostrar recomendación o esqueleto de carga */}
+          {isLoadingAI ? (
+            <div className="mt-4">
+              <Skeleton className="h-16 w-full mb-2" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          ) : aiRecommendation && (
             <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
               <p className="text-sm text-blue-800">{aiRecommendation.recommendation}</p>
               <p className="text-xs text-blue-600 mt-2">{aiRecommendation.context}</p>
