@@ -59,12 +59,13 @@ export async function getAIRecommendation(
     
     promptText += ". La recomendación debe ser empática, práctica y escrita en español.";
 
-    // Llamada a la API de ShadAI
+    // Llamada a la API de ShadAI con el API key proporcionado
     try {
       const response = await fetch("https://api.shadai.ai/api/v1/predict", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": "Bearer e343bf65-5cd4-4f38-8da2-7681805ad9cd"
         },
         body: JSON.stringify({
           prompt: promptText,
