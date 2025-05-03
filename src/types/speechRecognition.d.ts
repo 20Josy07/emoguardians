@@ -60,4 +60,13 @@ declare global {
   }
 }
 
-export {};
+// Export the SpeechRecognition interface
+export type { 
+  SpeechRecognition,
+  SpeechRecognitionErrorEvent,
+  SpeechRecognitionEvent,
+  SpeechRecognitionResultList,
+  SpeechRecognitionResult,
+  SpeechRecognitionAlternative,
+  SpeechRecognitionConstructor
+};

@@ -1,10 +1,12 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Speaker, Mic, MicOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+// Import SpeechRecognition type from our type definitions
+import type { SpeechRecognition } from "@/types/speechRecognition";
 
 interface EmotionInputProps {
   onAnalyze: (text: string) => void;
