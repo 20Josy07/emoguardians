@@ -1,8 +1,8 @@
+
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { EmotionInput } from "@/components/EmotionInput";
 import { EmotionResult, Emotion, AlertSignal } from "@/components/EmotionResult";
-import { HealthConditionForm } from "@/components/HealthConditionForm";
 import { ImageTextInput } from "@/components/ImageTextInput";
 import { analyzeText } from "@/services/emotionAnalysis";
 import { useToast } from "@/components/ui/use-toast";
@@ -13,14 +13,14 @@ const Index = () => {
   const [analyzed, setAnalyzed] = useState(false);
   const [emotions, setEmotions] = useState<Emotion[]>([]);
   const [alertSignals, setAlertSignals] = useState<AlertSignal[]>([]);
-  const [healthCondition, setHealthCondition] = useState<string | null>(undefined);
   const { toast } = useToast();
 
   const handleAnalyze = async (text: string) => {
     try {
       setAnalyzing(true);
       
-      const results = await analyzeText(text, healthCondition);
+      // Pasamos null como condición de salud ya que la eliminamos del flujo
+      const results = await analyzeText(text, null);
       
       setEmotions(results.emotions);
       setAlertSignals(results.alertSignals);
@@ -70,9 +70,7 @@ const Index = () => {
       
       <main className="flex-1 container max-w-4xl mx-auto px-4 py-8 flex flex-col items-center">
         <div className="w-full max-w-3xl space-y-6">
-          {healthCondition === undefined ? (
-            <HealthConditionForm onSubmit={setHealthCondition} />
-          ) : !analyzed ? (
+          {!analyzed ? (
             <>
               <EmotionInput onAnalyze={handleAnalyze} isAnalyzing={analyzing} />
               <ImageTextInput 
@@ -94,7 +92,7 @@ const Index = () => {
             </>
           )}
           
-          {!analyzed && !analyzing && healthCondition !== undefined && (
+          {!analyzed && !analyzing && (
             <div className="mt-8 p-5 bg-blue-50 border border-blue-200 rounded-lg">
               <h2 className="text-xl font-medium mb-2 text-blue-800">¿Cómo funciona EmoGuardian?</h2>
               <ol className="list-decimal pl-5 space-y-2 text-blue-700">
