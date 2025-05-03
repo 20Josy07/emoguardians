@@ -10,7 +10,7 @@ export function Header() {
           <Headphones className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">EmoGuardian</h1>
+          <h1 className="text-2xl font-bold tracking-tight">EmoVision</h1>
           <p className="text-sm text-muted-foreground">Tu guardián emocional de chats</p>
         </div>
       </div>

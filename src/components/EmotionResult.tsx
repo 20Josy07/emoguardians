@@ -72,6 +72,21 @@ export function EmotionResult({ emotions, alertSignals, onReset }: EmotionResult
     }
   };
 
+  // Colores para las emociones si no tienen uno asignado
+  const getEmotionColor = (index: number) => {
+    const colors = [
+      "bg-blue-500", 
+      "bg-purple-500", 
+      "bg-pink-500", 
+      "bg-orange-500",
+      "bg-green-500", 
+      "bg-teal-500", 
+      "bg-indigo-500",
+      "bg-yellow-500"
+    ];
+    return colors[index % colors.length];
+  };
+
   const hasHighSeverity = alertSignals.some(signal => signal.severity === "high");
   
   return (
@@ -96,7 +111,7 @@ export function EmotionResult({ emotions, alertSignals, onReset }: EmotionResult
         <div>
           <h3 className="text-lg font-medium mb-3">Emociones detectadas</h3>
           <div className="space-y-3">
-            {emotions.map((emotion) => (
+            {emotions.map((emotion, index) => (
               <div key={emotion.name} className="space-y-1">
                 <div className="flex justify-between items-center">
                   <span className="font-medium">{emotion.name}</span>
@@ -104,7 +119,7 @@ export function EmotionResult({ emotions, alertSignals, onReset }: EmotionResult
                 </div>
                 <Progress 
                   value={emotion.score * 100} 
-                  className={`h-2 ${emotion.color}`} 
+                  className={emotion.color || getEmotionColor(index)} 
                   aria-label={`${emotion.name}: ${Math.round(emotion.score * 100)}%`}
                 />
               </div>
